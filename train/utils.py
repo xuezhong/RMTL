@@ -75,7 +75,7 @@ class Catemapper:
         tmp_df = pd.DataFrame(dataset.categorical_data, columns=dataset.cate_cols)
         for col in self.catemap:
             tmp_df[col] = tmp_df[col].apply(lambda x: self.catemap[col][x] if x in self.catemap[col] else 0)
-        dataset.categorical_data = tmp_df.values.astype(np.int)
+        dataset.categorical_data = tmp_df.values.astype(np.int64)
         dataset.field_dims = self.field_dims
 
     def map(self, df):
