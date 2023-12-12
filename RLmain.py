@@ -1,6 +1,8 @@
 from env import MTEnv
 from train.run import *
 from agents.DDPG_ESMM_BC import TD3_ESMMBCAgent
+from agents.DDPG import DDPGAgent
+from agents.SAC import SACAgent
 from train.utils import ActionNormalizer
 from train.Arguments import Arguments
 
@@ -21,6 +23,10 @@ def create_sub_agent(env, actor_name, agentcls, hyparams):
 
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--method', default='DDPG', choices=['TD3', 'SAC', 'DDPG'])
+    args = parser.parse_args()
     hyparams = Arguments()
 
     # 1. RL environment （采样视数据集数量选择行数，已有offline memory可将train_rows调到极低）
@@ -30,7 +36,16 @@ if __name__ == '__main__':
     env.getMDP()
 
     # 2. Agent design
-    agent = create_sub_agent(env, 'ple', TD3_ESMMBCAgent, hyparams)  # TD3BC agent, 0 as ac loss by default
+    print('choose '+args.method)
+    if args.method == 'TD3':
+        agent = create_sub_agent(env, 'ple', TD3_ESMMBCAgent, hyparams)  # TD3BC agent, 0 as ac loss by default
+    elif args.method == 'DDPG':
+        agent = create_sub_agent(env, 'ple', DDPGAgent, hyparams)  # DDPG agent, 0 as ac loss by default
+    elif args.method == 'SAC':
+        agent = create_sub_agent(env, 'ple', SACAgent, hyparams)  # SAC agent, 0 as ac loss by default
+    else:
+        print('wrong method')
+        exit()
 
     # 3. offline training
     hyparams.epoch = 96
