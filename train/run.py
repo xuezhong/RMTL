@@ -22,6 +22,7 @@ from slmodels.mmoe import MMoEModel
 from slmodels.sharedbottom import SharedBottomModel
 from slmodels.aitm import AITMModel
 from slmodels.omoe import OMoEModel
+from matplotlib.backends.backend_pdf import PdfPages
 
 """
 SL run begin here
@@ -268,9 +269,9 @@ def plot_loss(
     """Plot the training progresses."""
 
     def subplot(loc: int, title: str, values: List[float]):
-        plt.subplot(loc)
-        plt.title(title)
-        plt.plot(values)
+            fig=plt.subplot(loc)
+            plt.title(title)
+            plt.plot(values)
 
     subplot_params = [
         (221, f"frame {frame_idx}. score: {np.mean(scores[-10:])}", scores),
@@ -280,8 +281,18 @@ def plot_loss(
     ]
 
     clear_output(True)
-    plt.figure(figsize=(30, 5))
+    fig = plt.figure(figsize=(30, 5))
     for loc, title, values in subplot_params:
         subplot(loc, title, values)
 
     plt.show()
+    
+    # 创建一个PDF文件
+    import time
+    current_timestamp = time.time()
+    time_struct = time.localtime(current_timestamp)
+    time_string = time.strftime("%Y-%m-%d_%H_%M", time_struct)
+    with PdfPages(time_string + '.pdf') as pdf:
+        #pdf.savefig(fig)  # 保存当前图形到PDF
+        plt.close(fig)  # 关闭图形以节省内存
+
