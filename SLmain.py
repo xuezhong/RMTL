@@ -98,14 +98,14 @@ def main(dataset_name,
         test_env = ActionNormalizer(MTEnv(hyparams.test_path, hyparams.features_path, hyparams.map_path,
                                           reward_type=hyparams.reward_type, nrows=hyparams.test_rows, is_test=True))
         test_env.getMDP()
-        polisher = RlLossPolisher(test_env, model_name, lambda_=polish_lambda)
+        polisher = RlLossPolisher(test_env, model_name, polish_method=polish_method, lambda_=polish_lambda)
         model.load_state_dict(torch.load(f'{save_dir}/{dataset_name}_{model_name}_0.0.pt'))
     else:
         polisher = None
     # polisher = RlLossPolisher(test_env, "esmm", lambda_=polish_lambda)  # test transibility
     early_stopper = EarlyStopper(num_trials=2, save_path=save_path)
     for epoch_i in range(epoch):
-        train_loss = train(model, optimizer, train_data_loader, criterion, device, polisher, polish_method)
+        train_loss = train(model, optimizer, train_data_loader, criterion, device, polisher)
         auc, loss, _, _ = test(model, val_data_loader, task_num, device)
         # auc, loss = env_test(test_env, model, save_dir, device)
         print('epoch:', epoch_i,'train loss:',train_loss, 'test: auc:', auc)

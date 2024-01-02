@@ -66,7 +66,7 @@ def get_model(name, categorical_field_dims, numerical_num, task_num, expert_num,
         raise ValueError('unknown model name: ' + name)
 
 
-def sltrain(model, optimizer, data_loader, criterion, device, polisher, polish_method, log_interval=100):
+def sltrain(model, optimizer, data_loader, criterion, device, polisher, log_interval=100):
     model.train()
     total_loss = 0
     epoch_loss = []
@@ -75,7 +75,7 @@ def sltrain(model, optimizer, data_loader, criterion, device, polisher, polish_m
         categorical_fields, numerical_fields, labels = categorical_fields.to(device), numerical_fields.to(device), labels.to(device)
         y = model(categorical_fields, numerical_fields)
         if polisher is not None:
-            loss = polisher.polish_loss(categorical_fields, numerical_fields, labels, y, polish_method)
+            loss = polisher.polish_loss(categorical_fields, numerical_fields, labels, y)
         else:
             loss_list = [criterion(y[i], labels[:, i].float()) for i in range(labels.size(1))]
             loss = 0

@@ -160,9 +160,10 @@ class ActionNormalizer(gym.ActionWrapper):
 
 
 class RlLossPolisher:
-    def __init__(self, env, model_name, lambda_=0.5):
+    def __init__(self, env, model_name, polish_method, lambda_=0.5):
         # tuning param
         self.lambda_ = lambda_
+        self.polish_method = polish_method
 
         # dynamic path
         self.rl_path = f"./chkpt/RL/res_TD3BC_{model_name}"
@@ -200,7 +201,8 @@ class RlLossPolisher:
         state_dict2 = torch.load(self.rl_path + "/critic2.pth", map_location=lambda storage, loc: storage)
         self.critic2.load_state_dict(state_dict2)
 
-    def polish_loss(self, categorical_fields, numerical_fields, labels, y, method):
+    def polish_loss(self, categorical_fields, numerical_fields, labels, y):
+        method = self.polish_method
         # default two task here
         slloss = [torch.nn.BCELoss(reduction='none')(y[i],labels[:,i]) for i in range(2)]
 
