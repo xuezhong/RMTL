@@ -42,7 +42,8 @@ def main(dataset_name,
          weight_decay,
          polish_lambda,
          device,
-         save_dir):
+         save_dir,
+         polish_method):
     device = torch.device(device)
     # 装载数据集
     train_dataset = get_dataset(dataset_name, os.path.join(dataset_path, dataset_name) + '/train.csv')
@@ -104,7 +105,7 @@ def main(dataset_name,
     # polisher = RlLossPolisher(test_env, "esmm", lambda_=polish_lambda)  # test transibility
     early_stopper = EarlyStopper(num_trials=2, save_path=save_path)
     for epoch_i in range(epoch):
-        train_loss = train(model, optimizer, train_data_loader, criterion, device, polisher)
+        train_loss = train(model, optimizer, train_data_loader, criterion, device, polisher, polish_method)
         auc, loss, _, _ = test(model, val_data_loader, task_num, device)
         # auc, loss = env_test(test_env, model, save_dir, device)
         print('epoch:', epoch_i,'train loss:',train_loss, 'test: auc:', auc)
@@ -161,6 +162,7 @@ if __name__ == '__main__':
     parser.add_argument('--task_num', type=int, default=2)
     parser.add_argument('--expert_num', type=int, default=8)
     parser.add_argument('--polish', type=float, default=0.)
+    parser.add_argument('--polish_method', type=int, default=3)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     parser.add_argument('--feature_map_rate', type=float, default=0.2)
     parser.add_argument('--batch_size', type=int, default=2048)
@@ -182,4 +184,5 @@ if __name__ == '__main__':
          args.weight_decay,
          args.polish,
          args.device,
-         args.save_dir)
+         args.save_dir,
+         args.polish_method)

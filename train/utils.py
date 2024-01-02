@@ -200,29 +200,30 @@ class RlLossPolisher:
         state_dict2 = torch.load(self.rl_path + "/critic2.pth", map_location=lambda storage, loc: storage)
         self.critic2.load_state_dict(state_dict2)
 
-    def polish_loss(self, categorical_fields, numerical_fields, labels, y):
+    def polish_loss(self, categorical_fields, numerical_fields, labels, y, method=3):
         # default two task here
         slloss = [torch.nn.BCELoss(reduction='none')(y[i],labels[:,i]) for i in range(2)]
 
         q_weight = [self.critic1(categorical_fields, numerical_fields, torch.unsqueeze(y[0], 1)),
                     self.critic2(categorical_fields, numerical_fields, torch.unsqueeze(y[1], 1))]
 
-        # method 1
-        # loss_list = [(1 - self.lambda_ * labels[:, i] * q_weight[i].detach()) *
-        #              slloss[i] for i in range(2)]
+        if method == 1:
+            loss_list = [(1 - self.lambda_ * labels[:, i] * q_weight[i].detach()) *
+                        slloss[i] for i in range(2)]
 
-        # method 2
-        # loss_list = [0.5 * slloss[i] for i in range(2)]
+        if method == 2:
+            loss_list = [0.5 * slloss[i] for i in range(2)]
 
-        loss_list = [(1 - self.lambda_ * q_weight[i].detach()) *
-                     slloss[i] for i in range(2)]
+        if method == 3:
+            loss_list = [(1 - self.lambda_ * q_weight[i].detach()) *
+                        slloss[i] for i in range(2)]
 
-        # method 3
-        #loss_list = [(1-self.lambda_ * q_weight[i].detach()) *
-        #       slloss[i] for i in range(2)]
+        if method == 4:
+            loss_list = [(1-self.lambda_ * q_weight[i].detach()) *
+                         slloss[i] for i in range(2)]
 
-        # method 4
-        # loss_list = [(0-q_weight[i].detach()) * slloss[i] for i in range(2)]
+        if method == 5:
+            loss_list = [(0-q_weight[i].detach()) * slloss[i] for i in range(2)]
 
         loss = 0
         for item in loss_list:
