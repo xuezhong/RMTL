@@ -200,7 +200,7 @@ class RlLossPolisher:
         state_dict2 = torch.load(self.rl_path + "/critic2.pth", map_location=lambda storage, loc: storage)
         self.critic2.load_state_dict(state_dict2)
 
-    def polish_loss(self, categorical_fields, numerical_fields, labels, y, method=3):
+    def polish_loss(self, categorical_fields, numerical_fields, labels, y, method):
         # default two task here
         slloss = [torch.nn.BCELoss(reduction='none')(y[i],labels[:,i]) for i in range(2)]
 
@@ -219,7 +219,7 @@ class RlLossPolisher:
                         slloss[i] for i in range(2)]
 
         if method == 4:
-            loss_list = [(1-self.lambda_ * q_weight[i].detach()) *
+            loss_list = [(1-self.lambda_ * q_weight[i]) *
                          slloss[i] for i in range(2)]
 
         if method == 5:
