@@ -195,11 +195,12 @@ class RlLossPolisher:
 
         self.critic2 = CriticNeg(self.categorical_field_dims, self.num_dim, self.embed_dim, self.bottom_mlp_dims,
                               self.tower_mlp_dims, self.drop_out).to(self.device)
-
-        state_dict1 = torch.load(self.rl_path + "/critic1.pth", map_location=lambda storage, loc: storage)
-        self.critic1.load_state_dict(state_dict1)
-        state_dict2 = torch.load(self.rl_path + "/critic2.pth", map_location=lambda storage, loc: storage)
-        self.critic2.load_state_dict(state_dict2)
+    
+        if self.polish_method != 6:
+            state_dict1 = torch.load(self.rl_path + "/critic1.pth", map_location=lambda storage, loc: storage)
+            self.critic1.load_state_dict(state_dict1)
+            state_dict2 = torch.load(self.rl_path + "/critic2.pth", map_location=lambda storage, loc: storage)
+            self.critic2.load_state_dict(state_dict2)
 
     def polish_loss(self, categorical_fields, numerical_fields, labels, y):
         method = self.polish_method
@@ -220,7 +221,7 @@ class RlLossPolisher:
             loss_list = [(1 - self.lambda_ * q_weight[i].detach()) *
                         slloss[i] for i in range(2)]
 
-        if method == 4:
+        if method == 4 or method == 6:
             loss_list = [(1-self.lambda_ * q_weight[i]) *
                          slloss[i] for i in range(2)]
 
